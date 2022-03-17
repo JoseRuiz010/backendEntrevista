@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model todo {
+  id          Int    @id @default(autoincrement())
+  descripcion String @db.VarChar(255)
+}
+
+model Pregunta {
+  id               Int                @id @default(autoincrement())
+  descripcion      String             @db.VarChar(255)
+  modeloEntrevista ModeloEntrevista[] @relation(references: [id])
+}
+
+model Persona {
+  id            Int             @id @default(autoincrement())
+  name          String
+  apellido      String
+  email         String
+  telefono      String
+  direccion     String
+  Entrevistado  Entrevistado[]
+  Entrevistador Entrevistador[]
+}
+
+model Entrevistado {
+
+  id        Int     @id @default(autoincrement())
+  persona   Persona @relation(fields: [personaId], references: [id])
+  personaId Int
+
+  Entrevista Entrevista[]
+}
+
+model Entrevistador {
+
+  id        Int     @id @default(autoincrement())
+  legajo    String
+  persona   Persona @relation(fields: [personaId], references: [id])
+  personaId Int
+
+  Entrevista Entrevista[]
+}
+
+model ModeloEntrevista {
+  id         Int          @id @default(autoincrement())
+  name       String       @db.VarChar(255)
+  createAt   DateTime     @default(now())
+  preguntas  Pregunta[]   @relation(references: [id])
+  Entrevista Entrevista[]
+}
+
+model Entrevista {
+  id                 Int              @id @default(autoincrement())
+  createAt           DateTime         @default(now())
+  objetivo           String
+  comentario         String
+  calificacion       String
+  autor              Entrevistador    @relation(fields: [autorId], references: [id])
+  autorId            Int
+  entrevistado       Entrevistado     @relation(fields: [entrevistadiId], references: [id])
+  entrevistadiId     Int
+  modeloEntrevista   ModeloEntrevista @relation(fields: [modeloEntrevistaId], references: [id])
+  modeloEntrevistaId Int
+}
